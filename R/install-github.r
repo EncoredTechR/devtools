@@ -104,23 +104,23 @@ remote_download.github_remote <- function(x, quiet = FALSE) {
             "\nfrom URL ", src)
   }
 
-  if (!is.null(x$auth_token)) {
-    auth <- httr::authenticate(
-      user = x$auth_token,
-      password = "x-oauth-basic",
-      type = "basic"
-    )
-  } else {
-    auth <- NULL
-  }
+
+  if (is.null(x$auth_token))
+    x$auth_token <- github_pat(quiet = TRUE)
+
+  auth <- httr::authenticate(user = x$auth_token,
+                             password = "x-oauth-basic",
+                             type = "basic")
 
   if (github_has_remotes(x, auth))
     warning("GitHub repo contains submodules, may not function as expected!",
-      call. = FALSE)
+            call. = FALSE)
 
+  print(dest)
+  print(src)
+  print(auth)
   download_github(dest, src, auth)
 }
-
 github_has_remotes <- function(x, auth = NULL) {
   src_root <- paste0(x$host, "/repos/", x$username, "/", x$repo)
   src_submodules <- paste0(src_root, "/contents/.gitmodules?ref=", x$ref)
