@@ -116,9 +116,6 @@ remote_download.github_remote <- function(x, quiet = FALSE) {
     warning("GitHub repo contains submodules, may not function as expected!",
             call. = FALSE)
 
-  print(dest)
-  print(src)
-  print(auth)
   download_github(dest, src, auth)
 }
 github_has_remotes <- function(x, auth = NULL) {
