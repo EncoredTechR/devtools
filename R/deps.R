@@ -131,7 +131,37 @@ dev_package_deps <- function(pkg = ".", dependencies = NA,
   # Only keep dependencies we actually want to use
   res <- res[res$package %in% deps, ]
   res <- add_init_install_version(res, parsed)
+  res <- as_min_version_remote(res)
   return(res)
+}
+
+as_min_version_remote <- function(package_dep) {
+  if (nrow(package_dep) == 0) {
+    return(package_dep)
+  }
+
+  for (i in 1:nrow(package_dep)) {
+    if (!is.na(package_dep$installed[i])) {
+      next()
+    }
+
+    remote <- package_dep$remote[i][[1L]]
+
+    if (inherits(remote, "cran_remote")) {
+      if (!is.na(package_dep$version[i])) {
+        tmp <- as_github_remote.cran_remote(remote)
+        tmp$ref <- as.character(package_dep$version[i])
+        package_dep$remote[i][[1L]] <- tmp
+      }
+    }
+
+    if (inherits(remote, "github_remote")) {
+      if (!is.na(package_dep$version[i])) {
+        package_dep$remote[i][[1L]]$ref <- package_dep$version[i]
+      }
+    }
+  }
+  return(package_dep)
 }
 
 filter_duplicate_deps <- function(cran_deps, remote_deps) {
