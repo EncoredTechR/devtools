@@ -246,35 +246,11 @@ parse_git_repo <- function(path) {
 remote_package_name.github_remote <- function(remote, ...) {
   tmp <- tempfile()
   on.exit(unlink(tmp))
-  get_contents_using_github_api(remote,
-                                content_path = "DESCRIPTION",
-                                path_to_save = tmp)
+  github_contents(remote,
+                  content_path = "DESCRIPTION",
+                  path_to_save = tmp)
 
   read_dcf(tmp)$Package
-}
-
-#' @references https://developer.github.com/v3/repos/contents/#get-contents
-get_contents_using_github_api <-
-  function(remote, content_path, path_to_save) {
-    owner <- remote$username
-    repo <- remote$repo
-    target_path <-
-      file.path("repos", owner, repo, "contents", content_path)
-    response <- github_GET(path = target_path)
-
-    download_file_using_wget(url = response$download_url,
-                             destfile = path_to_save)
-  }
-
-download_file_using_wget <- function(url, destfile) {
-  utils::download.file(
-    url = url,
-    destfile = destfile,
-    cacheOK = TRUE,
-    method = "wget",
-    quiet = TRUE,
-    extra = "--continue"
-  )
 }
 
 #' @export
@@ -291,8 +267,10 @@ remote_sha.github_remote <- function(remote, ...) {
 
   tryCatch(
     expr = {
-      response <- github_GET(path = target_path)
-      return(response$sha)
+      remote_sha <-
+        github_GET(path = target_path,
+                   httr::add_headers(Accept = "application/vnd.github.VERSION.sha"))
+      return(remote_sha)
     },
     error = function(e) {
       return(NA_character_)
