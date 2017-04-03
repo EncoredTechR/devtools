@@ -244,13 +244,21 @@ parse_git_repo <- function(path) {
 
 #' @export
 remote_package_name.github_remote <- function(remote, ...) {
+  remote_package_description.github_remote(remote)$Package
+}
+
+remote_package_version.github_remote <- function(remote, ...) {
+  remote_package_description.github_remote(remote)$Version
+}
+
+remote_package_description.github_remote <- function(remote) {
   tmp <- tempfile()
   on.exit(unlink(tmp))
   github_contents(remote,
                   content_path = "DESCRIPTION",
                   path_to_save = tmp)
 
-  read_dcf(tmp)$Package
+  read_dcf(tmp)
 }
 
 #' @export
