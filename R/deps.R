@@ -157,7 +157,7 @@ as_min_version_remote <- function(package_dep) {
 
     if (inherits(remote, "github_remote")) {
       if (!is.na(package_dep$version[i])) {
-        package_dep$remote[i][[1L]]$ref <- package_dep$version[i]
+        package_dep$remote[i][[1L]]$ref <- as.character(package_dep$version[i])
       }
     }
   }
